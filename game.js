@@ -1,29 +1,22 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 const root=document.querySelector('#game'), scene=new THREE.Scene();scene.background=new THREE.Color(0x8ed8ff);scene.fog=new THREE.Fog(0x8ed8ff,35,95);
-const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,150);camera.position.set(0,1.7,12);
+const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,150);camera.position.set(-14,1.7,-5.6);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;root.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xffffff,0x64748b,2));const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(-12,22,10);sun.castShadow=true;scene.add(sun);
 const mat=(c)=>new THREE.MeshStandardMaterial({color:c,roughness:.8});
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(100,100),mat(0x7bc96f));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
 function box(x,y,z,w,h,d,color){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m}
 function label(text,x,z,color='#fff'){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.fillStyle='#14213ddd';ctx.roundRect(8,8,496,112,22);ctx.fill();ctx.font='bold 46px Arial';ctx.textAlign='center';ctx.fillStyle=color;ctx.fillText(text,256,80);const t=new THREE.CanvasTexture(c);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true}));s.position.set(x,4.2,z);s.scale.set(6,1.5,1);scene.add(s)}
-// Colorful Roblox-like training plaza
-box(0,.1,0,42,.2,34,0xb5c8d8);
-for(let i=-18;i<=18;i+=6){box(i,.22,0,.12,.03,32,0x9aafc0);box(0,.22,i*.7,40,.03,.12,0x9aafc0)}
-// boxing bags: red area left
-box(-13,.4,-3,8,.5,9,0xf4b2a7);label('БОКСЁРСКИЕ ГРУШИ',-13,-3,'#ffb2a5');
-for(let i=0;i<3;i++){box(-15+i*2,.25,-3,1.2,.35,1.2,0x333b4d);const bag=new THREE.Mesh(new THREE.CylinderGeometry(.48,.55,2.2,16),mat(0xe94343));bag.position.set(-15+i*2,1.55,-3);bag.castShadow=true;scene.add(bag);box(-15+i*2,2.72,-3,.12,.4,.12,0x333333)}
-// treadmills blue zone rear
-box(0,.4,-12,9,.5,7,0x8dbdff);label('БЕГОВЫЕ ДОРОЖКИ',0,-12,'#a8caff');
-for(let i=0;i<3;i++){box(-2.8+i*2.8,.65,-12,1.5,.25,3.5,0x26364d);box(-2.8+i*2.8,1.5,-13.5,.12,1.8,.12,0x26364d);box(-2.8+i*2.8,2.35,-13.5,1.1,.12,.12,0x26364d)}
-// egg hatch yellow
-box(-13,.35,10,8,.5,7,0xf5db72);label('ЯЙЦА И ПИТОМЦЫ',-13,10,'#ffe68a');
-for(let i=0;i<3;i++){const e=new THREE.Mesh(new THREE.SphereGeometry(.8,20,16),mat([0xfff4cf,0xffc7dc,0xbfe9ff][i]));e.scale.y=1.25;e.position.set(-15+i*2,1.5,10);e.castShadow=true;scene.add(e)}
-// glove shop black
-box(0,.5,10,8,.7,7,0x343946);label('МАГАЗИН ПЕРЧАТОК',0,10,'#ffffff');box(0,1.5,10,3,1.2,.4,0x171b24);
-for(let i=0;i<3;i++){const g=new THREE.Mesh(new THREE.SphereGeometry(.65,16,12),mat([0xe74b4b,0x397de8,0xe5b83d][i]));g.scale.set(.8,1.1,.65);g.position.set(-2+i*2,2.2,9.5);scene.add(g)}
-// shoe shop green
-box(13,.35,10,8,.5,7,0x8bdb9b);label('МАГАЗИН КРОССОВОК',13,10,'#c5ffd1');for(let i=0;i<3;i++){box(11+i*2,1,10,.9,.45,1.5,[0xffd24d,0x65b9ff,0xff7aa8][i])}
+// ===== ЛЕСНАЯ ПОЛЯНА (бывший зал) — деревья вокруг центра карты =====
+const treeSpots=[];
+for(let x=-21;x<=21;x+=7)for(let z=-16;z<=16;z+=8){if(Math.abs(x)<4&&Math.abs(z)<5)continue;treeSpots.push([x+(Math.random()*3-1.5),z+(Math.random()*3-1.5)])}
+for(const[tx,tz]of treeSpots){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.25,.35,2,8),mat(0x7a5230));trunk.position.set(tx,1,tz);trunk.castShadow=true;scene.add(trunk);const crown=new THREE.Mesh(new THREE.ConeGeometry(1.4,3,8),mat(0x2e8b46));crown.position.set(tx,3.4,tz);crown.castShadow=true;scene.add(crown)}
+const clearing=new THREE.Mesh(new THREE.CircleGeometry(9,40),new THREE.MeshStandardMaterial({color:0x9ad88a,roughness:.9}));clearing.rotation.x=-Math.PI/2;clearing.position.set(0,.05,0);scene.add(clearing);
+for(let i=0;i<14;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(.5+Math.random()*.5,8,6),mat(0xffffff));m.scale.y=.35;m.position.set((Math.random()*16-8),.1,(Math.random()*14-7));scene.add(m)}
+label('ЛЕСНАЯ ПОЛЯНА',0,0,'#dfffe9');
+// деревянные домики-прилавки для зон поляны
+for(const[zx,zz,name,col]of[[-6,4,'БОКСЁРСКИЕ ГРУШИ',0xf4b2a7],[0,-6,'БЕГОВЫЕ ДОРОЖКИ',0x8dbdff],[-8,-6,'ЯЙЦА И ПИТОМЦЫ',0xf5db72],[0,7,'МАГАЗИН ПЕРЧАТОК',0x343946],[8,4,'МАГАЗИН КРОССОВОК',0x8bdb9b]]){box(zx,.9,zz,3,1.8,2.4,col);const roof=new THREE.Mesh(new THREE.ConeGeometry(2.4,1,4),mat(0xb04a3a));roof.position.set(zx,2.4,zz);roof.rotation.y=Math.PI/4;scene.add(roof);label(name,zx,zz,'#ffffff')}
+
 // decorative walls and trees
 for(let x=-20;x<=20;x+=5){box(x,1,-18,.7,2,.7,0x62728a);const top=new THREE.Mesh(new THREE.ConeGeometry(1.5,3,8),mat(0x299b62));top.position.set(x,3.3,-18);scene.add(top)}
 // ===== РУИНЫ (severe zone) — hostile NPC wander here: 15 HP, give 27 exp + 15 coins, health bar above head =====
@@ -75,6 +68,22 @@ const merchant=(function(){const g=new THREE.Group();const skin=mat(0xf1c27d);
  const hat=new THREE.Mesh(new THREE.BoxGeometry(.62,.16,.62),mat(0x1c4a94));hat.position.y=2.25;g.add(hat);
  for(const s of[-1,1]){const arm=new THREE.Mesh(new THREE.BoxGeometry(.2,.7,.2),skin);arm.position.set(.5*s,1.2,0);g.add(arm);const leg=new THREE.Mesh(new THREE.BoxGeometry(.24,.7,.24),mat(0x333b4d));leg.position.set(.18*s,.35,0);g.add(leg)}
  g.position.set(village.cx+2.6,0,village.cz+3.4);scene.add(g);return g})();
+// ===== бродячие мирные НПС в деревне =====
+const villagers=[];
+class Villager{
+ constructor(x,z,area,color){this.area=area;this.pos=new THREE.Vector3(x,0,z);this.dest=this.randomDest();this.speed=.9+Math.random()*.5;
+  this.g=new THREE.Group();const skin=mat(0xf1c27d);
+  const body=new THREE.Mesh(new THREE.BoxGeometry(.7,.9,.4),mat(color));body.position.y=1.15;body.castShadow=true;this.g.add(body);
+  const head=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),skin);head.position.y=1.9;head.castShadow=true;this.g.add(head);
+  const eyeL=new THREE.Mesh(new THREE.BoxGeometry(.08,.08,.04),mat(0x111111));eyeL.position.set(.12,1.95,.26);this.g.add(eyeL);const eyeR=eyeL.clone();eyeR.position.x=-.12;this.g.add(eyeR);
+  for(const s of[-1,1]){const arm=new THREE.Mesh(new THREE.BoxGeometry(.2,.7,.2),skin);arm.position.set(.47*s,1.2,0);this.g.add(arm);const leg=new THREE.Mesh(new THREE.BoxGeometry(.24,.7,.24),mat(0x3b3f4d));leg.position.set(.18*s,.35,0);this.g.add(leg)}
+  scene.add(this.g);this.syncMesh()}
+ randomDest(){const a=Math.random()*Math.PI*2,r=Math.random()*this.area.r;return new THREE.Vector3(this.area.cx+Math.cos(a)*r,0,this.area.cz+Math.sin(a)*r)}
+ syncMesh(){this.g.position.copy(this.pos);this.g.lookAt(camera.position.x,this.pos.y,camera.position.z)}
+ update(dt){const d=this.dest.clone().sub(this.pos);d.y=0;if(d.length()<.4)this.dest=this.randomDest();else this.pos.addScaledVector(d.normalize(),this.speed*dt);this.syncMesh()}
+}
+villagers.push(new Villager(-12,-8,village,0x3aa14e),new Villager(-16,-12,village,0xd07a2f),new Villager(-13,-13,village,0x8a3ad0));
+
 function makeSword(scale=1){const g=new THREE.Group();const mk=(w,h,d,c)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.castShadow=true;return m};
  const blade=mk(.1,.95,.045,0xd7dde6);blade.position.y=.55;g.add(blade);
  const guard=mk(.34,.09,.09,0xb07a2f);guard.position.y=.06;g.add(guard);
@@ -96,11 +105,11 @@ function closePanel(){panel.classList.add('hidden');currentZone=null}
 document.querySelector('#closePanel').onclick=closePanel;
 function actionButton(text,run){return {text,run}}
 const zones=[
-{title:'Боксёрские груши',desc:'Бей грушу, чтобы получать силу. Улучшения становятся дороже постепенно.',pos:[-13,-3],radius:5,buttons:[actionButton('УДАРИТЬ (+ сила)',()=>{state.strength+=state.glove*state.pet;state.coins+=2*state.pet;save();toast('Сила увеличена! +2 монеты') }),actionButton('ТРЕНИРОВКА СИЛЫ — 100 монет',()=>{if(state.coins<100)return toast('Не хватает монет');state.coins-=100;state.strength+=5;save();toast('+5 силы')})]},
-{title:'Беговые дорожки',desc:'Беги, чтобы развивать скорость. Скорость немного ускоряет передвижение.',pos:[0,-12],radius:5,buttons:[actionButton('БЕЖАТЬ (+ скорость)',()=>{state.speed+=state.shoe*state.pet*.5;state.coins+=2;save();toast('Скорость увеличена!')})]},
-{title:'Яйца питомцев',desc:'Питомцы дают небольшой бонус к тренировкам. Яйцо стоит 250 монет.',pos:[-13,10],radius:5,buttons:[actionButton('ВЫЛУПИТЬ ЯЙЦО — 250 🪙',()=>{if(state.coins<250)return toast('Не хватает монет');state.coins-=250;const pets=['Кубический щенок','Неоновый кот','Золотой нуб'];const pet=pets[Math.floor(Math.random()*pets.length)];state.pet=Math.min(3,state.pet+.25);save();toast('Выпал питомец: '+pet+'! Бонус тренировки повышен')})]},
-{title:'Магазин перчаток',desc:'Перчатки умножают прирост силы. Каждая следующая дороже.',pos:[0,10],radius:5,buttons:[1,2,3].map((n)=>actionButton(['Перчатки x1.5 — 300 🪙','Перчатки x2 — 900 🪙','Перчатки x3 — 2500 🪙'][n-1],()=>{const costs=[300,900,2500],mult=[1.5,2,3];if(state.glove>=mult[n-1])return toast('Уже куплено');if(state.coins<costs[n-1])return toast('Не хватает монет');state.coins-=costs[n-1];state.glove=mult[n-1];save();toast('Куплены перчатки x'+state.glove)}))},
-{title:'Магазин кроссовок',desc:'Кроссовки увеличивают скорость, которую получаешь на дорожке.',pos:[13,10],radius:5,buttons:[1,2,3].map((n)=>actionButton(['Кроссовки x1.5 — 300 🪙','Кроссовки x2 — 900 🪙','Кроссовки x3 — 2500 🪙'][n-1],()=>{const costs=[300,900,2500],mult=[1.5,2,3];if(state.shoe>=mult[n-1])return toast('Уже куплено');if(state.coins<costs[n-1])return toast('Не хватает монет');state.coins-=costs[n-1];state.shoe=mult[n-1];save();toast('Куплены кроссовки x'+state.shoe)}))},
+{title:'Боксёрские груши',desc:'Бей грушу, чтобы получать силу. Улучшения становятся дороже постепенно.',pos:[-6,4],radius:4,buttons:[actionButton('УДАРИТЬ (+ сила)',()=>{state.strength+=state.glove*state.pet;state.coins+=2*state.pet;save();toast('Сила увеличена! +2 монеты') }),actionButton('ТРЕНИРОВКА СИЛЫ — 100 монет',()=>{if(state.coins<100)return toast('Не хватает монет');state.coins-=100;state.strength+=5;save();toast('+5 силы')})]},
+{title:'Беговые дорожки',desc:'Беги, чтобы развивать скорость. Скорость немного ускоряет передвижение.',pos:[0,-6],radius:4,buttons:[actionButton('БЕЖАТЬ (+ скорость)',()=>{state.speed+=state.shoe*state.pet*.5;state.coins+=2;save();toast('Скорость увеличена!')})]},
+{title:'Яйца питомцев',desc:'Питомцы дают небольшой бонус к тренировкам. Яйцо стоит 250 монет.',pos:[-8,-6],radius:4,buttons:[actionButton('ВЫЛУПИТЬ ЯЙЦО — 250 🪙',()=>{if(state.coins<250)return toast('Не хватает монет');state.coins-=250;const pets=['Кубический щенок','Неоновый кот','Золотой нуб'];const pet=pets[Math.floor(Math.random()*pets.length)];state.pet=Math.min(3,state.pet+.25);save();toast('Выпал питомец: '+pet+'! Бонус тренировки повышен')})]},
+{title:'Магазин перчаток',desc:'Перчатки умножают прирост силы. Каждая следующая дороже.',pos:[0,7],radius:4,buttons:[1,2,3].map((n)=>actionButton(['Перчатки x1.5 — 300 🪙','Перчатки x2 — 900 🪙','Перчатки x3 — 2500 🪙'][n-1],()=>{const costs=[300,900,2500],mult=[1.5,2,3];if(state.glove>=mult[n-1])return toast('Уже куплено');if(state.coins<costs[n-1])return toast('Не хватает монет');state.coins-=costs[n-1];state.glove=mult[n-1];save();toast('Куплены перчатки x'+state.glove)}))},
+{title:'Магазин кроссовок',desc:'Кроссовки увеличивают скорость, которую получаешь на дорожке.',pos:[8,4],radius:4,buttons:[1,2,3].map((n)=>actionButton(['Кроссовки x1.5 — 300 🪙','Кроссовки x2 — 900 🪙','Кроссовки x3 — 2500 🪙'][n-1],()=>{const costs=[300,900,2500],mult=[1.5,2,3];if(state.shoe>=mult[n-1])return toast('Уже куплено');if(state.coins<costs[n-1])return toast('Не хватает монет');state.coins-=costs[n-1];state.shoe=mult[n-1];save();toast('Куплены кроссовки x'+state.shoe)}))},
 {title:'⚔️ Мечник в деревне',desc:'Мерчент продаёт и покупает мечи. Меч наносит 5 урона врагам в Руинах (ЛКМ / кнопка АТАКА).',pos:[village.cx+2.6,village.cz+3.4],radius:3.5,buttons:[
  actionButton('КУПИТЬ МЕЧ — 300 🪙',()=>{if(state.sword>=1)return toast('Меч уже у тебя!');if(state.coins<300)return toast('Не хватает монет');state.coins-=300;state.sword=1;save();equipSword(true);toast('⚔️ Меч куплен! Бей врагов в Руинах')})
 ,actionButton('ПРОДАТЬ МЕЧ — +200 🪙',()=>{if(state.sword<1)return toast('У тебя нет меча');state.sword=0;state.coins+=200;save();equipSword(false);toast('Меч продан за 200 монет')})
@@ -114,14 +123,15 @@ const zones=[
 let heldSword=null;
 function equipSword(on){if(heldSword){camera.remove(heldSword);heldSword=null}if(on&&state.sword>=1){heldSword=makeSword(.7);heldSword.position.set(.42,-.35,-.7);heldSword.rotation.set(.2,0,-1.2);camera.add(heldSword)}}
 let swingT=0;
-function attackNearest(){if(!state.sword)return toast('Купи меч у торговца в деревне!');swingT=.3;let best=null,bd=4;for(const e of enemies){if(!e.alive)continue;const d=e.pos.distanceTo(camera.position);if(d<bd){bd=d;best=e}}if(best){best.hit(5);if(best.alive)toast('Удар мечом! Осталось HP: '+best.hp)}else toast('Никого рядом — подойди ближе')}
+function attackNearest(){if(!state.sword)return toast('Купи меч у торговца в деревне!');swingT=.3;let best=null,bd=4;for(const v of villagers)v.update(dt);
+ for(const e of enemies){if(!e.alive)continue;const d=e.pos.distanceTo(camera.position);if(d<bd){bd=d;best=e}}if(best){best.hit(5);if(best.alive)toast('Удар мечом! Осталось HP: '+best.hp)}else toast('Никого рядом — подойди ближе')}
 renderer.domElement.addEventListener('mousedown',e=>{if(e.button===0&&active&&panel.classList.contains('hidden')&&document.pointerLockElement===renderer.domElement)attackNearest()});
 function interact(){if(currentZone){closePanel();return}let best=null,dist=Infinity;for(const z of zones){const d=Math.hypot(camera.position.x-z.pos[0],camera.position.z-z.pos[1]);if(d<z.radius&&d<dist){best=z;dist=d}}if(best)openPanel(best);else toast('Подойди ближе к нужной зоне')}
 document.querySelector('#actionBtn').onclick=interact;
 document.querySelector('#menuBtn').onclick=openSettings;
 // ===== НАСТРОЙКИ (чувствительность + громкость) — интеграция Яндекс Игр =====
 let YaGamesCtx=null;const audioCtxRef={ctx:null};
-(function(){try{if(typeof YaGames!=='undefined'&&YaGames&&YaGames.isReady){YaGames.init().then(ctx=>{YaGamesCtx=ctx;console.log('✅ Yandex Games SDK готов')}).catch(()=>{console.log('SDK: не на платформе Яндекс Игр')})}}catch(e){}})();
+(function(){try{if(typeof YaGames!=='undefined'&&YaGames&&typeof YaGames.init==='function'){YaGames.init().then(ctx=>{YaGamesCtx=ctx;console.log('✅ Yandex Games SDK готов');try{ctx.features.LoadingAPI&&ctx.features.LoadingAPI.ready()}catch(e){}}).catch(()=>{console.log('SDK: не на платформе Яндекс Игр')})}}catch(e){}})();
 function beep(freq,dur){try{if(vol<=0||!active)return;if(!audioCtxRef.ctx)audioCtxRef.ctx=new (window.AudioContext||window.webkitAudioContext)();const ctx=audioCtxRef.ctx,o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=freq;o.type='square';g.gain.value=vol/100*.08;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+(dur||.08))}catch(e){}}
 function openSettings(){openPanel({title:'⚙️ Настройки',desc:'Чувствительность мыши и громкость звука. Интеграция с Яндекс Играми подключена автоматически.',buttons:[],sliders:true})}
 function buildSliders(){actions.innerHTML='';
@@ -142,6 +152,7 @@ document.querySelector('#play').onclick=()=>{document.querySelector('#start').cl
 updateHud();equipSword(state.sword>=1);
 let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min((now-last)/1000,.05);last=now;
  // enemies AI + respawn
+ for(const v of villagers)v.update(dt);
  for(const e of enemies){if(!e.alive&&now>=e.respawnAt){e.alive=true;e.hp=e.maxHp;e.pos.set(e.area.cx+(Math.random()*4-2),0,e.area.cz+(Math.random()*4-2));e.dest=e.randomDest();e.drawBar();scene.add(e.g)}e.update(dt)}
  // player regen + swing animation + sword follow
  if(active){if(playerHp<100&&now-lastRegen>4000){playerHp=Math.min(100,playerHp+8*dt+.01);updPlayerHpHud()}

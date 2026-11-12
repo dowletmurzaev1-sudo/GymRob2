@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#151b2d">
+<title>GymRob — 3D игра</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+html,body{height:100%;overflow:hidden;background:#151b2d}
+#game{position:fixed;inset:0}
+#game canvas{display:block}
+.hidden{display:none!important}
+#hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;padding:10px 14px;pointer-events:none;z-index:5;color:#fff;text-shadow:0 2px 6px #0008}
+.brand{font-weight:bold;font-size:20px;letter-spacing:1px;color:#ffd24d}
+.brand span{color:#65b9ff}
+.stats{display:flex;gap:12px;font-size:13px;flex-wrap:wrap;background:#151b2dcc;padding:6px 10px;border-radius:10px}
+#menuBtn{pointer-events:auto;margin-left:10px;background:#2f6fd0;color:#fff;border:0;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+#hint{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);color:#fff;font-size:12px;background:#151b2dcc;padding:5px 12px;border-radius:8px;z-index:5;white-space:nowrap;max-width:95vw;overflow:hidden;text-overflow:ellipsis}
+#crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#ffffffcc;font-size:22px;z-index:4;pointer-events:none}
+#panel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(420px,92vw);background:#1c2438ee;border:2px solid #3a4a6a;border-radius:16px;padding:20px;z-index:10;color:#fff}
+#panel h2{margin-bottom:8px;color:#ffd24d}
+#panel p{font-size:13px;color:#c7d2e8;margin-bottom:14px}
+#panel button,#panelActions button{display:block;width:100%;margin-top:8px;background:#2f6fd0;border:0;color:#fff;padding:10px;border-radius:10px;font-size:14px;cursor:pointer}
+#panel button:hover{background:#3f82e8}
+.close{position:absolute;top:10px;right:12px;width:auto!important;background:#3a4a6a!important;padding:4px 10px!important}
+.settingRow{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px}
+.settingRow label{flex:1;color:#c7d2e8}
+.settingRow input[type=range]{flex:2;accent-color:#ffd24d}
+.settingRow b{min-width:42px;text-align:right;color:#ffd24d}
+#toast{position:fixed;top:15%;left:50%;transform:translateX(-50%);background:#000c;color:#ffd24d;padding:10px 18px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;z-index:20;pointer-events:none;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+#mobile{position:fixed;bottom:18px;left:18px;z-index:6;display:none}
+#stick{width:110px;height:110px;border-radius:50%;background:#ffffff22;border:2px solid #ffffff44;position:relative;touch-action:none}
+#stickKnob{width:44px;height:44px;border-radius:50%;background:#ffffff88;position:absolute;top:33px;left:33px;pointer-events:none}
+#actionBtn{position:fixed;bottom:30px;right:22px;z-index:6;width:86px;height:86px;border-radius:50%;background:#e94343cc;color:#fff;border:0;font-size:13px;font-weight:bold;display:none;touch-action:manipulation}
+@media (pointer:coarse){#mobile{display:block}#actionBtn{display:block}}
+#start{position:fixed;inset:0;background:#101627ee;z-index:30;display:flex;align-items:center;justify-content:center}
+.start-card{background:#1c2438;border:2px solid #3a4a6a;border-radius:18px;padding:30px 36px;text-align:center;color:#fff;max-width:90vw}
+.start-card h1{color:#ffd24d;font-size:34px;margin-bottom:8px}
+.start-card p{color:#c7d2e8;font-size:14px;margin-bottom:18px}
+.start-card button{background:#34c759;color:#0d1a10;border:0;font-size:18px;font-weight:bold;padding:12px 40px;border-radius:12px;cursor:pointer}
+.start-card small{display:block;margin-top:14px;color:#8fa0c0;font-size:12px}
+</style>
+<script src="https://yandex.ru/games/sdk/v2"></script>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
+</script>
+</head>
+<body>
+<div id="game"></div>
+<div id="hud"><div class="brand">GYM<span>ROB</span></div><div class="stats"><div>❤️ HP: <b id="hp">100</b></div><div>💪 Сила: <b id="strength">1</b></div><div>⚡ Скорость: <b id="speed">1</b></div><div>🏆 Опыт: <b id="exp">0</b></div><div>🪙 Монеты: <b id="coins">100</b></div></div><button id="menuBtn">⚙️ НАСТРОЙКИ</button></div>
+<div id="hint">WASD — движение · мышь — обзор · E — взаимодействие</div>
+<div id="crosshair">+</div>
+<div id="panel" class="hidden"><button class="close" id="closePanel">✕</button><h2 id="panelTitle">Зона</h2><p id="panelDesc"></p><div id="panelActions"></div></div>
+<div id="toast"></div>
+<div id="mobile"><div id="stick"><div id="stickKnob"></div></div><button id="actionBtn">ДЕЙСТВИЕ</button></div>
+<div id="start"><div class="start-card"><h1>GYMROB</h1><p>Тренируйся. Становись сильнее. Собирай питомцев.</p><button id="play">ИГРАТЬ</button><small>На компьютере: WASD + мышь · На телефоне: джойстик</small></div></div>
+<script type="module" src="game.js"></script>
+</body>
+</html>
